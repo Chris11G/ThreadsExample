@@ -26,7 +26,7 @@ class MainActivity : ComponentActivity() {
                             .fillMaxSize()
                     ) {
                         //T number 1 complete;;aa
-                        FibonacciDemoNoBgThrd()
+                        FibonacciDemoBgThrd()
                     }
                 }
             }
