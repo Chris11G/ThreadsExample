@@ -19,8 +19,14 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ThreadsExampleTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting("Android", Modifier.padding(innerPadding))
+                Scaffold { innerPadding ->
+                    androidx.compose.foundation.layout.Box(
+                        modifier = Modifier
+                            .padding(innerPadding)
+                            .fillMaxSize()
+                    ) {
+                        FibonacciDemoNoBgThrd()
+                    }
                 }
             }
         }
