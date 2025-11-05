@@ -25,7 +25,7 @@ class MainActivity : ComponentActivity() {
                             .padding(innerPadding)
                             .fillMaxSize()
                     ) {
-                        //T number 1 complete
+                        //T number 1 complete;;
                         FibonacciDemoNoBgThrd()
                     }
                 }
