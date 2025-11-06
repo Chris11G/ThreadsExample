@@ -2,6 +2,12 @@ package edu.farmingdale.threadsexample.countdowntimer
 
 import android.util.Log
 import android.widget.NumberPicker
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.runtime.getValue
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.unit.dp
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -55,6 +61,19 @@ fun TimerScreen(
                 fontSize = 60.sp,//to do4: Increased from 40.sp
             )
         }
+        // To Do 5: Visual indicator for time remaining
+        val animatedProgress by animateFloatAsState(
+            targetValue = timerViewModel.progress,
+            label = "timer-progress"
+        )
+
+        LinearProgressIndicator(
+            progress = { animatedProgress },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp)
+        )
+
         TimePicker(
             hour = timerViewModel.selectedHour,
             min = timerViewModel.selectedMinute,
