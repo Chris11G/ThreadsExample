@@ -34,6 +34,14 @@ class TimerViewModel : ViewModel() {
     var isRunning by mutableStateOf(false)
         private set
 
+    /**
+     * ToDo 5 support: progress in [0f, 1f]
+     * 1f at start, 0f at finish. Safe when totalMillis == 0.
+     */
+    val progress: Float
+        get() = if (totalMillis <= 0L) 0f
+        else (remainingMillis.coerceAtLeast(0L).toFloat() / totalMillis.toFloat())
+
     fun selectTime(hour: Int, min: Int, sec: Int) {
         selectedHour = hour
         selectedMinute = min
@@ -49,12 +57,13 @@ class TimerViewModel : ViewModel() {
             isRunning = true
             remainingMillis = totalMillis
 
+            timerJob?.cancel()
             timerJob = viewModelScope.launch {
                 while (remainingMillis > 0) {
                     delay(1000)
-                    remainingMillis -= 1000
+                    // Clamp at 0 to avoid negative values due to scheduling jitter
+                    remainingMillis = (remainingMillis - 1000L).coerceAtLeast(0L)
                 }
-
                 isRunning = false
             }
         }
