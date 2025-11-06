@@ -66,7 +66,7 @@ fun TimerScreen(
             targetValue = timerViewModel.progress,
             label = "timer-progress"
         )
-
+        //This is where the visual progress indicator has been added
         LinearProgressIndicator(
             progress = { animatedProgress },
             modifier = Modifier
