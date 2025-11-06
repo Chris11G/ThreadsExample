@@ -48,6 +48,16 @@ class TimerViewModel : ViewModel() {
         selectedSecond = sec
     }
 
+    fun resetTimer() {
+        // Cancel any active timer
+        timerJob?.cancel()
+        isRunning = false
+
+        // Return the remaining time to the full original duration
+        remainingMillis = totalMillis
+    }
+
+
     fun startTimer() {
         // Convert hours, minutes, and seconds to milliseconds
         totalMillis = (selectedHour * 60 * 60 + selectedMinute * 60 + selectedSecond) * 1000L

@@ -80,6 +80,16 @@ fun TimerScreen(
             sec = timerViewModel.selectedSecond,
             onTimePick = timerViewModel::selectTime
         )
+        // To Do 6: Reset the timer button
+        if (timerViewModel.totalMillis > 0L) {
+            Button(
+                onClick = timerViewModel::resetTimer,
+                modifier = modifier.padding(top = 12.dp)
+            ) {
+                Text("Rest Timer")
+            }
+        }
+
         if (timerViewModel.isRunning) {
             Button(
                 onClick = timerViewModel::cancelTimer,
