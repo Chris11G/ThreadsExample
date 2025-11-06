@@ -25,7 +25,7 @@ class TimerViewModel : ViewModel() {
 
     var isRunning by mutableStateOf(false); private set
 
-    // To Do 5: progress (1f -> 0f)
+    // ToDo 5: progress (1f -> 0f)
     val progress: Float
         get() = if (totalMillis <= 0L) 0f
         else (remainingMillis.coerceAtLeast(0L).toFloat() / totalMillis.toFloat())
@@ -83,7 +83,7 @@ class TimerViewModel : ViewModel() {
         }
     }
 
-    // If you still want a “resetTimer” name in the UI, forward to restTimer()
+    //This method is used to reset the timer
     fun resetTimer() = restTimer()
 
     override fun onCleared() {

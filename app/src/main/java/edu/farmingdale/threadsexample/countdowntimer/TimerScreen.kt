@@ -1,6 +1,7 @@
 package edu.farmingdale.threadsexample.countdowntimer
 
 import android.util.Log
+import androidx.compose.ui.text.font.FontWeight
 import android.widget.NumberPicker
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.material3.LinearProgressIndicator
@@ -61,15 +62,25 @@ fun TimerScreen(
                 .size(240.dp),
             contentAlignment = Alignment.Center
         ) {
+
+            val isLastTenSeconds = timerViewModel.remainingMillis <= 10_000L
+
+
             if (timerViewModel.isRunning) {
 
             }
             Text(
+
                 text = timerText(timerViewModel.remainingMillis),
-                fontSize = 60.sp,//to do4: Increased from 40.sp
+                fontSize = 55.sp, // ToDo 4: larger text
+                fontWeight = if (isLastTenSeconds) FontWeight.Bold else FontWeight.Normal,
+                color = if (isLastTenSeconds) Color.Red else Color.Unspecified//ToDo 8: red and bold timer at the last 10 seconds
+
+
+
             )
         }
-        // To Do 5: Visual indicator for time remaining
+        // ToDo 5: Visual indicator for time remaining
         val animatedProgress by animateFloatAsState(
             targetValue = timerViewModel.progress,
             label = "timer-progress"
@@ -107,6 +118,8 @@ fun TimerScreen(
                 timerViewModel.consumeFinishCue()
             }
         }
+
+
 
         TimePicker(
             hour = timerViewModel.selectedHour,
