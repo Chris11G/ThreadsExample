@@ -14,33 +14,25 @@ import kotlinx.coroutines.launch
 class TimerViewModel : ViewModel() {
     private var timerJob: Job? = null
 
-    // Values selected in time picker
-    var selectedHour by mutableIntStateOf(0)
-        private set
-    var selectedMinute by mutableIntStateOf(0)
-        private set
-    var selectedSecond by mutableIntStateOf(0)
-        private set
+    // Time picker selections
+    var selectedHour by mutableIntStateOf(0); private set
+    var selectedMinute by mutableIntStateOf(0); private set
+    var selectedSecond by mutableIntStateOf(0); private set
 
-    // Total milliseconds when timer starts
-    var totalMillis by mutableLongStateOf(0L)
-        private set
+    // Duration at start and remaining time
+    var totalMillis by mutableLongStateOf(0L); private set
+    var remainingMillis by mutableLongStateOf(0L); private set
 
-    // Time that remains
-    var remainingMillis by mutableLongStateOf(0L)
-        private set
+    var isRunning by mutableStateOf(false); private set
 
-    // Timer's running status
-    var isRunning by mutableStateOf(false)
-        private set
-
-    /**
-     * ToDo 5 support: progress in [0f, 1f]
-     * 1f at start, 0f at finish. Safe when totalMillis == 0.
-     */
+    // To Do 5: progress (1f -> 0f)
     val progress: Float
         get() = if (totalMillis <= 0L) 0f
         else (remainingMillis.coerceAtLeast(0L).toFloat() / totalMillis.toFloat())
+
+    // To Do 7: one-shot finish cue
+    var playFinishCue by mutableStateOf(false); private set
+    fun consumeFinishCue() { playFinishCue = false }
 
     fun selectTime(hour: Int, min: Int, sec: Int) {
         selectedHour = hour
@@ -48,44 +40,51 @@ class TimerViewModel : ViewModel() {
         selectedSecond = sec
     }
 
-    fun resetTimer() {
-        // Cancel any active timer
-        timerJob?.cancel()
-        isRunning = false
-
-        // Return the remaining time to the full original duration
-        remainingMillis = totalMillis
-    }
-
-
     fun startTimer() {
-        // Convert hours, minutes, and seconds to milliseconds
-        totalMillis = (selectedHour * 60 * 60 + selectedMinute * 60 + selectedSecond) * 1000L
+        // compute duration
+        totalMillis = (selectedHour * 3600 + selectedMinute * 60 + selectedSecond) * 1000L
+        if (totalMillis <= 0L) {
+            isRunning = false
+            remainingMillis = 0L
+            return
+        }
 
-        // Start coroutine that makes the timer count down
-        if (totalMillis > 0) {
-            isRunning = true
-            remainingMillis = totalMillis
+        // initialize
+        playFinishCue = false
+        remainingMillis = totalMillis
+        isRunning = true
 
-            timerJob?.cancel()
-            timerJob = viewModelScope.launch {
-                while (remainingMillis > 0) {
-                    delay(1000)
-                    // Clamp at 0 to avoid negative values due to scheduling jitter
-                    remainingMillis = (remainingMillis - 1000L).coerceAtLeast(0L)
-                }
-                isRunning = false
+        // (re)start job
+        timerJob?.cancel()
+        timerJob = viewModelScope.launch {
+            while (remainingMillis > 0L) {
+                delay(1000L)
+                remainingMillis = (remainingMillis - 1000L).coerceAtLeast(0L)
             }
+            isRunning = false
+            playFinishCue = true
         }
     }
 
     fun cancelTimer() {
-        if (isRunning) {
-            timerJob?.cancel()
-            isRunning = false
-            remainingMillis = 0
+        timerJob?.cancel()
+        isRunning = false
+        remainingMillis = 0L
+    }
+
+    // To Do 6: “Rest” the timer back to the full duration
+    fun restTimer() {
+        timerJob?.cancel()
+        isRunning = false
+        if (totalMillis > 0L) {
+            remainingMillis = totalMillis
+        } else {
+            remainingMillis = 0L
         }
     }
+
+    // If you still want a “resetTimer” name in the UI, forward to restTimer()
+    fun resetTimer() = restTimer()
 
     override fun onCleared() {
         super.onCleared()

@@ -8,6 +8,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.unit.dp
+import android.media.MediaPlayer
+import android.media.RingtoneManager
+import android.net.Uri
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -36,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
+import edu.farmingdale.threadsexample.R
 import java.text.DecimalFormat
 import java.util.Locale
 import kotlin.time.Duration
@@ -46,6 +51,9 @@ fun TimerScreen(
     modifier: Modifier = Modifier,
     timerViewModel: TimerViewModel = viewModel()
 ) {
+
+    val context = LocalContext.current
+
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Box(
             modifier = modifier
@@ -73,6 +81,32 @@ fun TimerScreen(
                 .fillMaxWidth()
                 .padding(top = 16.dp)
         )
+
+        // ToDo 7: play a sound when the timer reaches 0
+        if (timerViewModel.playFinishCue) {
+            LaunchedEffect(timerViewModel.playFinishCue) {
+                val played = try {
+                    val mp = MediaPlayer.create(context, R.raw.beep)
+                    mp?.setOnCompletionListener { it.release() }
+                    mp?.start()
+                    mp != null
+                } catch (_: Exception) {
+                    false
+                }
+
+                // Fallback to system notification if raw sound missing
+                if (!played) {
+                    try {
+                        val uri: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+                        val ringtone = RingtoneManager.getRingtone(context, uri)
+                        ringtone.play()
+                    } catch (_: Exception) { /* no-op */ }
+                }
+
+                // Mark the cue as handled
+                timerViewModel.consumeFinishCue()
+            }
+        }
 
         TimePicker(
             hour = timerViewModel.selectedHour,
